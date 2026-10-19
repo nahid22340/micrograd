@@ -6,7 +6,7 @@ This project implements a backpropagation engine from the ground up, capable of 
 
 ---
 
-## 🚀 Features
+# Features
 
 * **Scalar Autograd Engine:** Implements automatic differentiation (backward pass) tracking operations (`+`, `-`, `*`, `/`, `**`, `tanh`).
 * **Neural Network Modules:** Built-in `Neuron`, `Layer`, and `MLP` classes supporting custom architectures and activation toggles.
@@ -14,7 +14,7 @@ This project implements a backpropagation engine from the ground up, capable of 
 
 ---
 
-## 📂 Project Structure
+# Structure
 
 ```text
 micrograd-from-scratch/

@@ -1,38 +1,39 @@
-from engine import value, MLP
-import random
+import torch
+from engine import value
 
-# Fix random seed for reproducible tests
-random.seed(42)
+def test_sanity_check():
+    """Verifies basic arithmetic and autograd against PyTorch."""
+    # Custom Value Engine
+    x1 = value(2.0, label='x1')
+    x2 = value(0.0, label='x2')
+    w1 = value(-3.0, label='w1')
+    w2 = value(1.0, label='w2')
+    b = value(6.881373587019543, label='b')
+    x1w1 = x1 * w1
+    x2w2 = x2 * w2
+    x1w1x2w2 = x1w1 + x2w2
+    n = x1w1x2w2 + b
+    o = n.tanh()
+    o.backward()
 
-# Instantiate a neural network
-model = MLP(3, [4, 4, 1])
+    # PyTorch Verification
+    x1_t = torch.tensor([2.0], requires_grad=True, dtype=torch.float64)
+    x2_t = torch.tensor([0.0], requires_grad=True, dtype=torch.float64)
+    w1_t = torch.tensor([-3.0], requires_grad=True, dtype=torch.float64)
+    w2_t = torch.tensor([1.0], requires_grad=True, dtype=torch.float64)
+    b_t = torch.tensor([6.881373587019543], requires_grad=True, dtype=torch.float64)
+    n_t = x1_t * w1_t + x2_t * w2_t + b_t
+    o_t = torch.tanh(n_t)
+    o_t.backward()
 
-# Input samples & targets (small dataset)
-xs = [[2.0, 3.0, -1.0]]
-ys = [1.0]
+    # Assert outputs and gradients match to 5 decimal places
+    assert abs(o.data - o_t.item()) < 1e-5
+    assert abs(x1.grad - x1_t.grad.item()) < 1e-5
+    assert abs(w1.grad - w1_t.grad.item()) < 1e-5
 
-# Get initial loss before training
-initial_loss = (model(xs[0]) - ys[0]) ** 2
-
-# Run a quick training loop (e.g., 20 steps)
-for step in range(20):
-    # Forward pass
-    ypred = model(xs[0])
-    loss = (ypred - ys[0]) ** 2
-    
-    # Zero gradients & Backward pass
-    for p in model.parameters():
-        p.grad = 0.0
-    loss.backward()
-    
-    # Update parameters
-    for p in model.parameters():
-        p.data += -0.05 * p.grad
-
-final_loss = loss.data
-print(f"Initial Loss: {initial_loss.data:.4f}")
-print(f"Final Loss (after 20 steps): {final_loss:.4f}")
-
-# CHECK
-assert final_loss < initial_loss.data, "Test Failed: Loss did not decrease!"
-print("Test Passed: The network successfully learned and minimized the loss!")
+def test_gradient_accumulation():
+    """Verifies multi-use variable gradient accumulation (+=)."""
+    a = value(3.0)
+    b = a + a  # b = 2a -> db/da = 2
+    b.backward()
+    assert a.grad == 2.0

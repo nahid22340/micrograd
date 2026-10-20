@@ -97,9 +97,10 @@ class value:
       node._backward()
 
 class Neuron:
-    def __init__(self, nin):
-      self.w = [value(random.uniform(-1, 1)) for _ in range(nin)]
-      self.b = value(random.uniform(-1, 1))
+    def __init__(self, nin):  
+      """Number of inputs come to the neuron."""
+      self.w = [value(random.uniform(-1, 1)) for _ in range(nin)]     # Weights for each input
+      self.b = value(random.uniform(-1, 1))       # Bias controls the threshold of the neuron.
 
     def __call__(self, x, nonlin=True):
       act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
@@ -107,24 +108,24 @@ class Neuron:
       return out
 
     def parameters(self):
-      return self.w + [self.b]
+      return self.w + [self.b]    # [w1, w2, ..., wn, b] list of parameters for the neuron.
 
 class Layer:
-    def __init__(self, nin, nout, nonlin=True):
-      self.neurons = [Neuron(nin) for _ in range(nout)]
-      self.nonlin = nonlin
+    def __init__(self, nin, nout):   # How many inputs neurons and how many outputs neurons in the layer.
+      self.neurons = [Neuron(nin) for _ in range(nout)]   # List of neurons in the layer
+
 
     def __call__(self, x):
-      outs = [n(x, nonlin=self.nonlin) for n in self.neurons]
+      outs = [n(x) for n in self.neurons]   
       return outs[0] if len(outs) == 1 else outs
 
     def parameters(self):
-      return [p for neuron in self.neurons for p in neuron.parameters()]
+      return [p for neuron in self.neurons for p in neuron.parameters()]    # Flatten the list of parameters from all neurons in the layer.
 
 class MLP:
   def __init__(self, nin, nouts):
     sz = [nin] + nouts
-    self.layers = [Layer(sz[i], sz[i+1], nonlin=(i != len(nouts)-1)) for i in range(len(nouts))]
+    self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]  
 
   def __call__(self, x):
     for layer in self.layers:
@@ -132,11 +133,11 @@ class MLP:
     return x
 
   def parameters(self):
-    return [p for layer in self.layers for p in layer.parameters()]
+    return [p for layer in self.layers for p in layer.parameters()]   # Flatten the list of parameters from all layers in the MLP.
 
 # --- Dataset & Training Loop ---
-x = [2.0, 3.0, -1.0]
-n = MLP(3, [4, 4, 1])
+x = [2.0, 3.0, -1.0]          # Sample input features
+n = MLP(3, [4, 4, 1])         # 3 inputs, 2 hidden layers of 4 neurons each, and 1 output neuron
 
 xs = [
     [2.0, 3.0, -1.0],
@@ -144,12 +145,12 @@ xs = [
     [0.5, 1.0, 1.0],
     [1.0, 1.2, -1.0]
 ]
-ys = [0.5, -1.0, -1.0, 0.7]  # Scaled targets for tanh output limits
+ys = [0.5, -1.0, -1.0, 0.7]  # Desired targets.
 
 for k in range(100):
   # Forward pass
   ypred = [n(x) for x in xs]
-  loss = sum([(yout - ygt)**2 for ygt, yout in zip(ys, ypred)], value(0))
+  loss = sum([(yout - ygt)**2 for ygt, yout in zip(ys, ypred)], value(0))    # Compute mean squared error loss.
 
   # Backward pass
   for p in n.parameters():
@@ -158,4 +159,4 @@ for k in range(100):
 
   # Update weights
   for p in n.parameters():
-    p.data += -0.05 * p.grad
+    p.data += -0.05 * p.grad    # Tiny nudge in the direction of the gradient to minimize loss.

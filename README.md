@@ -1,4 +1,4 @@
-# Micrograd from Scratch
+# Micrograd 
 
 A tiny scalar-valued autograd engine and neural network library built from scratch, inspired by Andrej Karpathy's `micrograd`. 
 

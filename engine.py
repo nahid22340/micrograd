@@ -5,9 +5,14 @@ import random
 random.seed(42)
 
 class value:
+   #This class represents a single scalar value and its gradient for backpropagation.
   def __init__(self, data, _children=(), _op='', label=''):
     self.data = data
+
     self.grad = 0.0
+    #Initial gradient is zero that initially it will not effect the loss function.
+    # It will be updated during backpropagation.
+
     self._backward = lambda: None
     self._prev = set(_children)
     self._op = _op
@@ -18,7 +23,7 @@ class value:
 
   def __add__(self, other):
     other = other if isinstance(other, value) else value(other)
-    out = value(self.data + other.data, (self, other), '+')
+    out = value(self.data + other.data, (self, other), '+')   # self.__add__(other) is called when we do self + other,and "+" is the operation being performed.
 
     def _backward():
       self.grad += 1.0 * out.grad

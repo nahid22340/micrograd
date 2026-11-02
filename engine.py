@@ -131,7 +131,7 @@ class Neuron:
       return self.w + [self.b]           # [w1, w2, ..., wn, b] list of parameters for the neuron.
 
 class Layer:
-    def __init__(self, nin, nout):    # How many inputs neurons and how many outputs neurons in the layer.
+    def __init__(self, nin, nout):    # A layer consists of multiple neurons, each taking the same number of inputs (nin) and producing outputs (nout).
       self.neurons = [Neuron(nin) for _ in range(nout)]   # List of neurons in the layer
 
     def __call__(self, x):
@@ -144,7 +144,8 @@ class Layer:
 class MLP:
   def __init__(self, nin, nouts):
     sz = [nin] + nouts
-    self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]
+    self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]  
+    # Create a list of layers, where each layer takes the number of inputs from the previous layer and produces the number of outputs specified in nouts.
 
   def __call__(self, x):
     for layer in self.layers:

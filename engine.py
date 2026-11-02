@@ -19,15 +19,23 @@ class value:
     self.label = label
 
   def __repr__(self):
+    '''a custom string representation for the value object, showing its data.'''
     return f"value(data={self.data})"
+  
 
   def __add__(self, other):
     other = other if isinstance(other, value) else value(other)
-    out = value(self.data + other.data, (self, other), '+')   # self.__add__(other) is called when we do self + other,and "+" is the operation being performed.
+    # adding a check to ensure that the other operand is also a value object. If not, it converts it into a value object.
+    # same goes for the other operations like multiplication, subtraction, etc.
+
+    out = value(self.data + other.data, (self, other), '+')
+    # self.__add__(other) is called when we do self + other,and "+" is the operation being performed
 
     def _backward():
       self.grad += 1.0 * out.grad
       other.grad += 1.0 * out.grad
+      # Here += is used to handle the multivariable chain rule
+
     out._backward = _backward
 
     return out
@@ -62,6 +70,9 @@ class value:
     return self + other
 
   def __rmul__(self, other):
+    ''' When 3*value is called, it will call value.__rmul__(3) which will return value.__mul__(3),
+    without this function, 3*value will throw an error because python will not know how to multiply a number with a value object.'''
+
     return self * other
 
   def __truediv__(self, other):

@@ -55,7 +55,7 @@ class value:
     assert isinstance(other, (int, float))
     # Other will be only int or float, not a value object.
     # Because we are not considering the case of raising a value object to the power of another value object.
-    
+
     out = value(self.data ** other, (self,), f'**{other}')
 
     def _backward():
@@ -123,6 +123,7 @@ class Neuron:
 
     def __call__(self, x):
       act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
+      # The sum of the weighted inputs plus the bias is passed through an activation function (tanh in this case) to produce the output of the neuron.
       out = act.tanh()
       return out
 

@@ -53,6 +53,9 @@ class value:
 
   def __pow__(self, other):
     assert isinstance(other, (int, float))
+    # Other will be only int or float, not a value object.
+    # Because we are not considering the case of raising a value object to the power of another value object.
+    
     out = value(self.data ** other, (self,), f'**{other}')
 
     def _backward():
